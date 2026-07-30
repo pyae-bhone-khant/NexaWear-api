@@ -1,10 +1,12 @@
-import { ConflictException, Injectable, InternalServerErrorException } from '@nestjs/common';
+import { ConflictException, Injectable, InternalServerErrorException, UnauthorizedException } from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { RegisterDto } from './dto/register.dto';
 import { AuthResponseDto } from './dto/auth-response.dto';
 import bcrypt from 'bcrypt';
 import { randomBytes } from 'node:crypto';
 import { JwtService } from '@nestjs/jwt';
+import { LoginDto } from './dto/login.dto';
+import { Role } from 'generated/prisma/enums';
 @Injectable()
 export class AuthService {
   private readonly SALT = 12;
@@ -79,5 +81,72 @@ export class AuthService {
       data : {refreshToken} 
     }
     )
+  } 
+
+  /**Refresh token  */ 
+ async refreshToekn (userId : string) : Promise<AuthResponseDto>   { 
+    const user = await this.prisma.user.findUnique({
+      where : {id : userId}   ,
+      select :  { 
+           id : true , 
+           email : true , 
+           firstName : true , 
+           lastName : true  , 
+           role : true 
+      }
+    }  , 
+
+   
+     
+  )
+   if (!user) { 
+      throw new UnauthorizedException('User Not Found ')
+    } 
+
+    const tokens = await this.generateTokens(user.id , user.email) ; 
+    await this.updateRefreshToken(user.id , tokens.refreshToken)
+
+      return { 
+          ...tokens , 
+          user
+        }
   }
+
+  async Logout (userId : string ) : Promise<void> {
+     await this.prisma.user.update({
+      where : {id : userId} , 
+      data : {refreshToken : null} 
+    })
+  }
+
+  async Login(loginDto : LoginDto) : Promise<AuthResponseDto> { 
+   const {email  , password } = loginDto ; 
+
+   const user  = await this.prisma.user.findUnique({
+    where : {
+      email 
+    }
+   })
+   const passwordMatch  = await bcrypt.compare(password , user!.password) ;
+
+   if (!user || !passwordMatch) { 
+    throw new UnauthorizedException('Invalid  email or password ') 
+   } 
+  
+const token  = await this.generateTokens(user.id , user.email)
+await this.updateRefreshToken(user.id , token.refreshToken)
+
+return { 
+  ...token , 
+  user : {
+    id : user.id , 
+    email : user.email , 
+    firstName : user.firstName , 
+     lastName : user.lastName , 
+     role : user.role
+  }
+}
+
+  } 
+  
 }
