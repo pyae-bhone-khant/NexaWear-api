@@ -6,6 +6,7 @@ import { RefreshTokenGuard } from './guards/refresh.token.guards.ts.guard';
 import { GetUser } from 'src/coomon/decorators/get-user.decorators';
 import { JwtAuthGuard } from 'src/coomon/guards/jwt-auth.guards.ts.guard';
 import { LoginDto } from './dto/login.dto';
+import { ApiOperation, ApiResponse } from '@nestjs/swagger';
 
 @Controller('auth')
 export class AuthController {
@@ -14,6 +15,20 @@ export class AuthController {
   // Register Api 
   @Post('register')
   @HttpCode(201)
+  @ApiOperation({summary : "Register a new user " , description : "create new user accoount "})
+  @ApiResponse({
+    status : 201 ,
+    type : AuthResponseDto,
+    description : "User registered successfully"
+  })
+  @ApiResponse({
+    status : 400 ,
+    description : " Bad request "
+  })
+  @ApiResponse({
+    status : 500 ,
+    description : " Internal server error "
+  })  
   async register(@Body() registerDto : RegisterDto ) : Promise<AuthResponseDto> {
       return this.authService.register(registerDto) ;
   } 
@@ -40,8 +55,6 @@ export class AuthController {
 async login (@Body()  loginDto : LoginDto ) { 
   return await this.authService.Login(loginDto)
 } 
-
-
 }
  
 

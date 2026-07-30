@@ -15,7 +15,7 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
             secretOrKey : configService.get<string>('JWT_SECRET') ?? "defaultsecret2026jjdnjdnjkdjkh3err3jjjallkznfnkenjee3eeenj3n" 
         });
 
-    
+        this.prismaService = prisma;
     } 
 
     // validate  JWT  payload  
