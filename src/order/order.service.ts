@@ -191,7 +191,7 @@ export class OrderService {
     }> { 
         const {page = 1 , limit = 10 , search , status } = query ;
          const skip = (page - 1 ) * limit ; 
-         const where : any = userId ; 
+         const where : any = { userId } ; 
          if (status ) where.status = status ; 
 
          if (search) where.OR = [

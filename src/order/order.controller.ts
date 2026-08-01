@@ -1,4 +1,4 @@
-import { Body, Controller, Delete, Get, Param, Patch, Post, Query } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, Patch, Post, Query, UseGuards } from '@nestjs/common';
 import { OrderService } from './order.service';
 import {
   ApiBearerAuth,
@@ -22,6 +22,7 @@ import {
   PaginatedOrderResponseDto,
 } from './dtos/order-api-response.dto';
 import { GetUser } from 'src/coomon/decorators/get-user.decorators';
+import { JwtAuthGuard } from 'src/coomon/guards/jwt-auth.guards.ts.guard';
 import { Roles } from 'src/coomon/decorators/roles.decorator.ts.decorator';
 import { Role } from 'generated/prisma/enums';
 import { QueryOrderDto } from './dtos/query-order.dto';
@@ -29,7 +30,7 @@ import { UpdateOrderDto } from './dtos/update-order.dto';
 
 @ApiTags('orders')
 @ApiBearerAuth('JWT_AUTH')
-@Controller('Orders')
+@UseGuards(JwtAuthGuard)
 @Controller('order')
 export class OrderController {
   constructor(private readonly orderService: OrderService) {}

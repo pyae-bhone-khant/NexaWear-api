@@ -9,6 +9,7 @@ import { CategoryModule } from './category/category.module';
 import { ProductModule } from './product/product.module';
 import { OrderModule } from './order/order.module';
 import { ThrottlerModule } from '@nestjs/throttler';
+import { PaymentModule } from './payment/payment.module';
 @Module({
   imports:  
   [
@@ -27,7 +28,7 @@ import { ThrottlerModule } from '@nestjs/throttler';
           ttl : 60 ,  // second 
           limit : 10  // ten request pr 60 second 
         } , 
-       ])
+       ]), PaymentModule
       ],
   controllers: [AppController],
   providers: [AppService],

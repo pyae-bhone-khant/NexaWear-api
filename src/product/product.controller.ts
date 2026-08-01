@@ -129,6 +129,7 @@ export class ProductController {
   return await this.productService.updateStock(id  , quantity )
  } 
 
+ 
 //  Remove a project (admin only) 
 @Delete(":id")
 @UseGuards(JwtAuthGuard , RoleGuard)

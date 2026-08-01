@@ -37,11 +37,11 @@ export class ProductService {
         return this.formatproduct(product) ;
     }  
 
-    private formatproduct (product : Product & {category : Category} ) : ProductResponseDto { 
+    private formatproduct (product : Product & {category : Category | null} ) : ProductResponseDto { 
         return { 
             ...product , 
             price : Number(product.price),
-            categroy : product.category.name        
+            categroy : product.category?.name ?? null        
         } 
     } 
     
@@ -125,7 +125,7 @@ export class ProductService {
             throw new NotFoundException(`Product with id ${id} not found`) ; 
         }  
 
-      if (updateProductDto  && updateProductDto.sku !== exitingProduct.sku) {
+      if (updateProductDto.sku && updateProductDto.sku !== exitingProduct.sku) {
         const SkuTaken = await this.prisma.product.findUnique({
             where : {
                 sku : updateProductDto.sku
@@ -138,7 +138,7 @@ export class ProductService {
       }
 
        const updateData : any =  {...updateProductDto} ; 
-       if (updateProductDto && updateProductDto.price !== undefined) {
+       if (updateProductDto.price && updateProductDto.price !== undefined) {
         updateData.price = new Prisma.Decimal(updateProductDto.price) 
        }
  
@@ -157,6 +157,10 @@ export class ProductService {
     }   
 
     async updateStock (id : string ,  quantity : number )  : Promise <ProductResponseDto>{
+
+        if (quantity === undefined || quantity === null || isNaN(quantity)) {
+            throw new BadRequestException('quantity is required and must be a number')
+        }
 
         const product = await this.prisma.product.findUnique({
             where : {id}
